@@ -1,6 +1,6 @@
 # NuBot
 
-Nubot is simply bot on Binance market. I'm testing now.  
+Nubot is simply bot on Binance market. I'm testing now. I' begginer in Python. I want learning :D 
 
 Now this bot has:
   1) Analiz and Signal = Analiz RSI and BB only par BTC. We can send on Telegram.
