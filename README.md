@@ -7,7 +7,7 @@ Now this bot has:
   2) Strategy RSI = In Setting.py we can change params. 
   3) Strategy PingPong = In Setting.py we can change parms.
   4) Strategy PingPong SMA = In setting.py we can change parms.
-  5) Strategy BB = In the future will be add. 
+  5) Strategy BB = In setting.py we can change parms.
   6) Balance = Your balance account on Binance Market.
 
 
@@ -17,5 +17,8 @@ Strategy RSI - This strategy is very simply. We need add MIN and MAX. Of course 
 Strategy PingPong - In this strategy we set base price, profit up, profit down. This strategy buy/sell coins when profit will be done. We have possibility set start operation "SELL" or "BUY".
 
 Strategy PingPong SMA - In this strategy we set profit up, profit down. Base price is line SMA. This strategy buy/sell coins when profit will be done. We have possibility set start operation "SELL" or "BUY".
+
+Strategy BB - In this strategy we use BB.
+  https://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:bollinger_bands
 
 In file key.py we need add Api Binance and Telegram.
