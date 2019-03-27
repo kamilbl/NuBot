@@ -3,3 +3,4 @@ https://github.com/python-telegram-bot/python-telegram-bot/wiki/Code-snippets#se
 #https://www.binance.com/api/v1/ticker/allPrices
 #https://support.binance.com/hc/en-us/articles/115000594711-Trading-Rule
 #https://stockcharts.com/
+https://gist.github.com/SeppPenner/6a5a30ebc8f79936fa136c524417761d

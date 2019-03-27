@@ -62,7 +62,7 @@ def Strategy_PingPong():
     aprofit = float(aprofit) * 100
     aprofit = round(aprofit,2)
     print("--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
-    print("Symbol:\t" + str(symbol + "BTC") + "\n\tBase price: " + str(base_price) + "\n\tProfit UP: " + str(up_profit) + "\n\tProfit DOWN: " + str(down_profit))
+    print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') + " Symbol:\t" + str(symbol + "BTC") + "\n\tBase price: " + str(base_price) + "\n\tProfit UP: " + str(up_profit) + "\n\tProfit DOWN: " + str(down_profit))
     print("\tPrice: " + str(price) + "\tProfit: " + str(aprofit) + "%\tBalance: " + str(balanceALTFREE))
     print("--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 
