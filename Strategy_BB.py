@@ -24,6 +24,7 @@ from telegram import (Animation, Audio, Contact, Document, Chat, Location,
 bot = telegram.Bot(token=key.token)
 
 def Strategy_BB():
+ 
   OrderStatus = ''
   OrderID = ''
   OrderSide = ''
@@ -123,23 +124,23 @@ def Strategy_BB():
               [str(OrderStatus),str(OrderID),str(OrderSide)]
           ]
       o = AsciiTable(table_order,'Last operation')
-      
 
       y = AsciiTable(table_price,title)
       y.justify_columns[2] = 'right'
       x = AsciiTable(table_balance)
       x.justify_columns[1] = 'right'
-      #print('\n')
       print(y.table)
       print(x.table)
       print(o.table)
       print("\n********************************************************************\n")
 
+      print(OrderID)
       if str(OrderID) != "":
-        check = client.get_order(symbol=symbol, orderId=str(OrderID), recvWindow=1000000)
-        Jorder = json.loads(json.dumps(str(check)))
+        check = client.get_order(symbol=str(symbol+"BTC"), orderId=OrderID, recvWindow=1000000)
+        Jorder = json.loads(json.dumps(check))
         OrderStatus = Jorder['status']
-      
+
+      print(str(OrderStatus))
       if start_operation == "SELL" and float(up_price) < float(price):
           qua = float(balanceALTFREE)
           if le==1:
@@ -150,10 +151,9 @@ def Strategy_BB():
           #print(str(OrderSell))
           start_operation = "BUY"
           com = "\t Sell Order. Balance: " + str(qua) + "\tPrice: " + str(price) + "\tNext operation: " + str(start_operation)
-          print(colorize(47, 0, 32, com))
+          print(str(com))
           bot.send_message(chat_id=key.chat_id, text=str(com))
-
-          Jorder = json.loads(json.dumps(str(OrderSell)))
+          Jorder = json.loads(json.dumps(OrderSell))
           OrderStatus = Jorder['status']
           OrderID = Jorder['orderId']
           OrderSide = Jorder['side']
@@ -167,10 +167,9 @@ def Strategy_BB():
           #print(str(OrderBuy))
           start_operation = "SELL"  
           com = "\t Buy Order. Balance: " + str(qua) + "\tPrice: " + str(price) + "\tNext operation: " + str(start_operation) + "\tBalance ALT: " + str(qua)
-          print(colorize(47, 0, 32, com))
+          print(str(com))
           bot.send_message(chat_id=key.chat_id, text=str(com))
-
-          Jorder = json.loads(json.dumps(str(OrderBuy)))
+          Jorder = json.loads(json.dumps(OrderBuy))
           OrderStatus = Jorder['status']
           OrderID = Jorder['orderId']
           OrderSide = Jorder['side']

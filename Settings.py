@@ -15,8 +15,8 @@ up_profitPPSMA = 1.015
 down_profitPPSMA = 0.99
 
 #Strategy BB Settings
-symbolBB = "MTH"
-tick_intervalBB="5m"
+symbolBB = "PHX"
+tick_intervalBB="15m"
 start_operationBB = "BUY"
 
 #Strategy RSI Settings
