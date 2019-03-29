@@ -7,13 +7,10 @@ import math
 import telegram
 import datetime
 import Settings
-#import matplotlib.pyplot as plt
+from terminaltables import AsciiTable
 
 from binance.client import Client
 client = Client(key.api_key, key.api_secret)
-
-from color import colorize
-#from color import uncolorize
 
 from telegram import (Animation, Audio, Contact, Document, Chat, Location,
                       PhotoSize, Sticker, TelegramObject, User, Video, Voice,
@@ -23,6 +20,9 @@ from telegram import (Animation, Audio, Contact, Document, Chat, Location,
 bot = telegram.Bot(token=key.token)
 
 def Strategy_PingPong_SMA():
+  OrderStatus = ''
+  OrderID = ''
+  OrderSide = ''
   symbol = Settings.symbolPPSMA
   base_priceSMA = Analiz.SMA14(market=symbol+"BTC", tick_interval=Settings.tick_intervalPPSMA)
   base_priceSMA = round(float(base_priceSMA),8)
@@ -67,10 +67,53 @@ def Strategy_PingPong_SMA():
       aprofit = float(price) / float(base_priceSMA) - 1
       aprofit = float(aprofit) * 100
       aprofit = round(aprofit,2)
-      print("--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
-      print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "\n\tSymbol:\t" + str(symbol + "BTC") + "\n\tBase price: " + str(base_priceSMA) + "\n\tProfit UP: " + str(up_profit) + "\n\tProfit DOWN: " + str(down_profit))
-      print("\tPrice: " + str(price) + "\tProfit: " + str(aprofit) + "%\tBalance: " + str(balanceALTFREE)+ "\tBalance[BTC] : " + str(balanceBTCFREE))
-      print("--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+
+      up_price = float(up_profit) * float(price)
+      up_price = round(up_price,8)
+      down_price = float(down_profit) * float(price)
+      down_price = round(down_price,8)
+
+      up_profit2 = (float(up_profit) - 1) * 100
+      up_profit2 = round(up_profit2, 2)
+
+      down_profit2 = (float(down_profit) - 1) * 100
+      down_profit2 = round(down_profit2, 2)
+
+      title = str("Market :" + str(symbol + "BTC ") + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+      table_price= [
+            ['Prices', 'Value', 'Profits'],
+            ['Up Price', str(up_price), str(up_profit2)+'%'],
+            ['Actual Price', str(price), ''],
+            ['Down Price', str(down_price), str(down_profit2)+'%'],
+            ['\nBase Price', '\n' + str(base_priceSMA), '\n' + str(aprofit)+'%']
+        ]
+
+      table_balance= [
+            ['Balance', 'Value'],
+            [str(symbol), str(balanceALTFREE)],
+            ['BTC', str(balanceBTCFREE)]
+        ]
+
+      table_order= [
+            ['OrderID', 'Status', 'Side'],
+            [str(OrderStatus),str(OrderID),str(OrderSide)]
+        ]
+
+      o = AsciiTable(table_order)
+      y = AsciiTable(table_price)
+      y.justify_columns[2] = 'right'
+      x = AsciiTable(table_balance)
+      x.justify_columns[1] = 'right'
+      print(title)
+      print(y.table)
+      print(x.table)
+      print(o.table)
+      print("\n********************************************************************\n")
+
+      if str(OrderID) != "":
+        check = client.get_order(symbol=str(symbol+"BTC"), orderId=OrderID, recvWindow=1000000)
+        Jorder = json.loads(json.dumps(check))
+        OrderStatus = Jorder['status']
 
       if start_operation == "SELL" and float(base_priceSMA)*float(up_profit) < float(price):
           qua = float(balanceALTFREE)
@@ -84,8 +127,12 @@ def Strategy_PingPong_SMA():
           budget_BTC = float(qua)*float(base_priceSMA)
           budget_BTC = round(budget_BTC,8)
           com = "\t Sell Order. Balance: " + str(qua) + "\tPrice: " + str(price) + "\tNext operation: " + str(start_operation) + "\tBudget Total: " + str(budget_BTC)
-          print(colorize(47, 0, 32, com))
+          print(str(com))
           bot.send_message(chat_id=key.chat_id, text=str(com))
+          Jorder = json.loads(json.dumps(OrderSell))
+          OrderStatus = Jorder['status']
+          OrderID = Jorder['orderId']
+          OrderSide = Jorder['side']
 
       if start_operation == "BUY" and float(base_priceSMA)*float(down_profit) > float(price):
           qua = float(budget_BTC) / float(price)
@@ -97,7 +144,11 @@ def Strategy_PingPong_SMA():
           print(str(OrderBuy))
           start_operation = "SELL"  
           com = "\t Buy Order. Balance: " + str(qua) + "\tPrice: " + str(price) + "\tNext operation: " + str(start_operation) + "\tBalance ALT: " + str(qua)
-          print(colorize(47, 0, 32, com))
+          print(str(com))
           bot.send_message(chat_id=key.chat_id, text=str(com))
+          Jorder = json.loads(json.dumps(OrderBuy))
+          OrderStatus = Jorder['status']
+          OrderID = Jorder['orderId']
+          OrderSide = Jorder['side'] 
     except:
       print("EOFError")

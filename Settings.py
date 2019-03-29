@@ -1,18 +1,17 @@
 #Strategy PingPong Settings
 symbolPP = "CELR"
-base_pricePP = "0.00000633"
+base_pricePP = "0.00000500"
 budget_BTCPP = 0.02
-start_operationPP = "SELL"
+start_operationPP = "BUY"
 up_profitPP = 1.02
 down_profitPP = 0.98
 
 #Strategy PingPong SMA Settings
 symbolPPSMA = "CELR"
 tick_intervalPPSMA="1m"
-#budget_BTCPPSMA = 0.02
-start_operationPPSMA = "SELL"
-up_profitPPSMA = 1.015
-down_profitPPSMA = 0.99
+start_operationPPSMA = "BUY"
+up_profitPPSMA = 1.05
+down_profitPPSMA = 0.95
 
 #Strategy BB Settings
 symbolBB = "PHX"
@@ -20,8 +19,8 @@ tick_intervalBB="15m"
 start_operationBB = "BUY"
 
 #Strategy RSI Settings
+symbolRSI = "CELR"
 minRSI=40
 maxRSI=60
 budget_orderRSI = 0.01
-budget_totalRSI = 0.03
 tick_intervalRSI = "1h"

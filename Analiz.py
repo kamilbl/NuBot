@@ -1,13 +1,9 @@
 import requests
 import json
-import time
 import math
 import datetime
-import decimal
-import math
 import key
 import telegram
-import Balance
 
 from binance.client import Client
 client = Client(key.api_key, key.api_secret)
@@ -18,11 +14,7 @@ from telegram import (Animation, Audio, Contact, Document, Chat, Location,
                       VideoNote, PassportData)
 
 bot = telegram.Bot(token=key.token)
-bot.send_message(chat_id=key.chat_id, text="Work :D")
-
-from color import colorize
-from color import uncolorize
-
+bot.send_message(chat_id=key.chat_id, text="Start NuBot")
 
 def RSI14(market, tick_interval):
     licznik = 1
@@ -55,22 +47,6 @@ def RSI14(market, tick_interval):
     tab[0][15] = resp_price[14][4]  #14
     tab[0][16] = resp_price[15][4]
 
-    #print(str(resp_price[0][4]))
-    #print(str(resp_price[1][4]))
-    #print(str(resp_price[2][4]))
-    #print(str(resp_price[3][4]))
-    #print(str(resp_price[4][4]))
-    #print(str(resp_price[5][4]))
-    #print(str(resp_price[6][4]))
-    #print(str(resp_price[7][4]))
-    #print(str(resp_price[8][4]))
-    #print(str(resp_price[9][4]))
-    #print(str(resp_price[10][4]))
-    #print(str(resp_price[11][4]))
-    #print(str(resp_price[12][4]))
-    #print(str(resp_price[13][4]))
-    #print(str(resp_price[14][4]))
-
     while True:
         a = float(tab[0][licznik + 1]) - float(tab[0][licznik])
         if a >= 0:
@@ -100,7 +76,6 @@ def RSI14(market, tick_interval):
             else:
                 RSI14 = 0
                 return RSI14
-
 
 def SMA14(market, tick_interval):
     #parms
@@ -138,7 +113,6 @@ def SMA14(market, tick_interval):
             return str(SMA14)
             break
 
-
 def BB14(market, tick_interval):
     Q = 0
     BB14up = 0
@@ -172,7 +146,6 @@ def BB14(market, tick_interval):
         licznik = licznik + 1
         if licznik == 15:
             SMA14 = float(SMA14) / 14
-            #SMA14 = round(float(SMA14), 8)
             licznik = 1
             break
 
@@ -192,15 +165,13 @@ def BB14(market, tick_interval):
             ]
             break
 
-
 def Symbol(a):
 
     if a == 0:
         a = 0
     else:
         a = a
-    #/api/v1/ticker/24hr
-    #url = 'https://api.binance.com/api/v1/ticker/24hr'
+
     url = 'https://api.binance.com/api/v3/ticker/price'
     data = requests.get(url).json()
     json1 = json.dumps(data)
@@ -208,7 +179,6 @@ def Symbol(a):
     symbol = resp_price[a]['symbol']
 
     return symbol
-
 
 def TestValue(market, tick_interval):
     #parms
@@ -258,13 +228,11 @@ def TestValue(market, tick_interval):
 
     return [TestValue1, TestValue2, TestValue3, TestValue4]
 
-
 def TestPrice(market, tick_interval):
     #parms
     #market = 'GTOBTC'
     #tick_interval = '1h'
     #limit = 5
-
     url = 'https://api.binance.com/api/v1/klines?symbol=' + market + '&interval=' + tick_interval + '&limit=5'
     data = requests.get(url).json()
     json1 = json.dumps(data)
@@ -277,7 +245,6 @@ def TestPrice(market, tick_interval):
     TestPrice4 = resp_price[4][4]
 
     return [TestPrice0, TestPrice1, TestPrice2, TestPrice3, TestPrice4]
-
 
 def StartAnaliz():
     k = 0
@@ -304,17 +271,12 @@ def StartAnaliz():
                 Price2 = TestPrice(market=symbol, tick_interval=interval)[2]
                 Price3 = TestPrice(market=symbol, tick_interval=interval)[3]
                 Price4 = TestPrice(market=symbol, tick_interval=interval)[4]
-                #print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') +
-                #' >> ' + str(symbol) + ' NONE!' + ' d1:' + str(Diff1) +
-                #' d2:' + str(Diff2) + ' d3:' + str(Diff3) + ' d4:' +
-                #str(Diff4))
-                #print(colorize(38, 5, 197, 'foo bar baz'))
                 print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') +
                       ' >> ' + str(symbol) + ' NONE!' + '\t' + '\t' +
                       ' Your balance in BTC: FREE:' +
-                      colorize(47, 0, 32, str(balanceBTCFREE)) + '\t' +
+                      str(balanceBTCFREE) + '\t' +
                       ' LOCKED:' +
-                      colorize(38, 5, 197, (str(balanceBTCLOCKED))))
+                      str(balanceBTCLOCKED))
                 print(
                     '***********************************************************************************************************************'
                 )
@@ -376,5 +338,4 @@ def StartAnaliz():
                 a = 0
         else:
             a = a + 1
-            #print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') + ' >> ' + str(symbol))
 

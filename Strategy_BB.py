@@ -13,9 +13,6 @@ from terminaltables import AsciiTable
 from binance.client import Client
 client = Client(key.api_key, key.api_secret)
 
-from color import colorize
-#from color import uncolorize
-
 from telegram import (Animation, Audio, Contact, Document, Chat, Location,
                       PhotoSize, Sticker, TelegramObject, User, Video, Voice,
                       Venue, MessageEntity, Game, Invoice, SuccessfulPayment,
@@ -107,8 +104,8 @@ def Strategy_BB():
       title = str("Market :" + str(symbol + "BTC ") + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
       table_price= [
           ['Prices', 'Value', 'Profits'],
-          ['Base Price', str(base_priceBB), str(aprofit)+'%'],
           ['Up Price', str(up_price), str(aprofitup)+'%'],
+          ['Base Price', str(base_priceBB), str(aprofit)+'%'],
           ['Down Price', str(down_price), str(aprofitdown)+'%'],
           ['Actual Price', str(price),""]
       ]
@@ -125,10 +122,11 @@ def Strategy_BB():
           ]
       o = AsciiTable(table_order,'Last operation')
 
-      y = AsciiTable(table_price,title)
+      y = AsciiTable(table_price)
       y.justify_columns[2] = 'right'
       x = AsciiTable(table_balance)
       x.justify_columns[1] = 'right'
+      print(title)
       print(y.table)
       print(x.table)
       print(o.table)
