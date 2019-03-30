@@ -19,8 +19,12 @@ tick_intervalBB="15m"
 start_operationBB = "BUY"
 
 #Strategy RSI Settings
-symbolRSI = "CELR"
-minRSI=40
-maxRSI=60
+symbolRSI = "MANA"
+minRSI=25
+maxRSI=85
 budget_orderRSI = 0.01
 tick_intervalRSI = "1h"
+start_operationRSI = "SELL"
+
+#Strategy Scalping Depth
+minDepth = 0.2

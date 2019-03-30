@@ -132,13 +132,13 @@ def Strategy_BB():
       print(o.table)
       print("\n********************************************************************\n")
 
-      print(OrderID)
+      #print(OrderID)
       if str(OrderID) != "":
         check = client.get_order(symbol=str(symbol+"BTC"), orderId=OrderID, recvWindow=1000000)
         Jorder = json.loads(json.dumps(check))
         OrderStatus = Jorder['status']
 
-      print(str(OrderStatus))
+      #print(str(OrderStatus))
       if start_operation == "SELL" and float(up_price) < float(price):
           qua = float(balanceALTFREE)
           if le==1:

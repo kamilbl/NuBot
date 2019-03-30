@@ -23,7 +23,7 @@ def Strategy_RSI():
   OrderStatus = ''
   OrderID = ''
   OrderSide = ''
-  start_operation = ''
+  start_operation = Settings.start_operationRSI
   symbol = Settings.symbolRSI
   RSI = Analiz.RSI14(market=symbol+"BTC", tick_interval=Settings.tick_intervalRSI)
  
@@ -31,8 +31,8 @@ def Strategy_RSI():
   balanceBTCJSON = json.dumps(balanceBTC)
   balanceBTCRESP = json.loads(balanceBTCJSON)
   balanceBTCFREE = balanceBTCRESP['free']
-  #budget_BTC = balanceBTCFREE
-  budget_BTC = Settings.budget_orderRSI
+  budget_BTC = balanceBTCFREE
+  #budget_BTC = Settings.budget_orderRSI
   
   k = 0
   a = 1
@@ -92,14 +92,14 @@ def Strategy_RSI():
         Jorder = json.loads(json.dumps(check))
         OrderStatus = Jorder['status']
 
-      if  float(RSI) < float(Settings.minRSI):
+      if start_operation == "SELL" and float(RSI) > float(Settings.maxRSI):
           qua = float(budget_BTC) / float(price)
           if le==1:
             qua = math.floor(qua)
           else: 
             qua = str(qua)[0:le]
           OrderSell = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_SELL, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(price))
-          print(str(OrderSell))
+          #print(str(OrderSell))
           start_operation = "BUY"
           budget_BTC = float(qua)*float(price)
           budget_BTC = round(budget_BTC,8)
@@ -111,14 +111,14 @@ def Strategy_RSI():
           OrderID = Jorder['orderId']
           OrderSide = Jorder['side']
 
-      if start_operation == "BUY" and float(RSI) > float(Settings.maxRSI):
+      if start_operation == "BUY" and float(RSI) < float(Settings.minRSI):
           qua = float(balanceALTFREE)
           if le==1:
             qua = math.floor(qua)
           else: 
             qua = str(qua)[0:le]
           OrderBuy = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_BUY, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(price))
-          print(str(OrderBuy))
+          #print(str(OrderBuy))
           start_operation = "SELL"  
           com = "\t Buy Order. Balance: " + str(qua) + "\tPrice: " + str(price) + "\tNext operation: " + str(start_operation) + "\tBalance ALT: " + str(qua)
           print(str(com))
