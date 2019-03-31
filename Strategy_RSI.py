@@ -91,7 +91,7 @@ def Strategy_RSI():
         check = client.get_order(symbol=str(symbol+"BTC"), orderId=OrderID, recvWindow=1000000)
         Jorder = json.loads(json.dumps(check))
         OrderStatus = Jorder['status']
-
+			
       if start_operation == "SELL" and float(RSI) > float(Settings.maxRSI):
           qua = float(budget_BTC) / float(price)
           if le==1:
@@ -128,4 +128,11 @@ def Strategy_RSI():
           OrderID = Jorder['orderId']
           OrderSide = Jorder['side']
     except:
-      print("EOFError")
+          print("EOFError")
+          print("balanceAltResp " + balanceALTRESP['code'] + " " + balanceALTRESP['msg'])
+          print("balanceBTCResp " + balanceBTCRESP['code'] + " " + balanceBTCRESP['msg'])
+          print("priceRESP  " + priceRESP['code'] + " " + priceRESP['msg'])
+          print("Jorder  " + Jorder['code'] + " " + Jorder['msg'])
+  
+
+				

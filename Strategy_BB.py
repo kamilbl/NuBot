@@ -21,7 +21,6 @@ from telegram import (Animation, Audio, Contact, Document, Chat, Location,
 bot = telegram.Bot(token=key.token)
 
 def Strategy_BB():
- 
   OrderStatus = ''
   OrderID = ''
   OrderSide = ''
@@ -39,7 +38,6 @@ def Strategy_BB():
   balanceBTCRESP = json.loads(balanceBTCJSON)
   balanceBTCFREE = balanceBTCRESP['free']
   budget_BTC = balanceBTCFREE
-
   start_operation = Settings.start_operationBB
   
   k = 0
@@ -56,7 +54,6 @@ def Strategy_BB():
     try:
       base_priceBB = Analiz.BB14(market=symbol+"BTC", tick_interval=Settings.tick_intervalBB)[0]
       base_priceBB = round(float(base_priceBB),8)
-
       up_price = Analiz.BB14(market=symbol+"BTC", tick_interval=Settings.tick_intervalBB)[1]
       up_price = round(float(up_price),8)
       down_price = Analiz.BB14(market=symbol+"BTC", tick_interval=Settings.tick_intervalBB)[2]
@@ -71,7 +68,6 @@ def Strategy_BB():
       balanceBTCRESP = json.loads(balanceBTCJSON)
       balanceBTCFREE = balanceBTCRESP['free']
       budget_BTC = balanceBTCFREE
-
       price = client.get_symbol_ticker(symbol=str(symbol)+"BTC")
       priceJSON = json.dumps(price)
       priceRESP = json.loads(priceJSON)
@@ -87,20 +83,7 @@ def Strategy_BB():
       aprofitdown = float(down_price) / float(base_priceBB) - 1
       aprofitdown = float(aprofitdown) * 100
       aprofitdown = round(aprofitdown,2)
-      #print("--------------------------------------------------------------------------------------------------------------------------------------------------------------")
-      #print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "\n\tSymbol:\t" + str(symbol + "BTC") 
-      #+ "\n\tBase price:\t" + str(base_priceBB)
-      #+ "\tProfit:\t\t" + str(aprofit) 
-      #+ "%\n\tPrice UP:\t" + str(up_price)
-      #+ "\tProfitUP:\t" + str(aprofitup)
-      #+ "%\n\tPrice DOWN:\t" + str(down_price) 
-      #+ "\tProfitDown:\t" + str(aprofitdown)+"%")
-
-      #print("\tPrice:\t\t" + str(price) 
-      #+ "\n\tBalance:\t" + str(balanceALTFREE)
-      #+ "\n\tBalance[BTC]:\t" + str(balanceBTCFREE))
-      #print("--------------------------------------------------------------------------------------------------------------------------------------------------------------")
-
+    
       title = str("Market :" + str(symbol + "BTC ") + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
       table_price= [
           ['Prices', 'Value', 'Profits'],
@@ -173,3 +156,10 @@ def Strategy_BB():
           OrderSide = Jorder['side']
     except:
       print("EOFError")
+      print("balanceAltResp " + balanceALTRESP['code'] + " " + balanceALTRESP['msg'])
+      print("balanceBTCResp " + balanceBTCRESP['code'] + " " + balanceBTCRESP['msg'])
+      print("priceRESP  " + priceRESP['code'] + " " + priceRESP['msg'])
+      print("Jorder  " + Jorder['code'] + " " + Jorder['msg'])
+      
+
+    

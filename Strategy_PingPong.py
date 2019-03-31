@@ -38,12 +38,12 @@ def Strategy_PingPong():
     else:
       a = int(a) + 1
   
-  print(str(le))
+  #print(str(le))
 
   while True:
     try:
       time.sleep(1)
-      balanceALT = client.get_asset_balance(asset=str(symbol))
+      balanceALT = client.get_asset_balance(asset=str(symbol), recvWindow=1000000)
       balanceALTJSON = json.dumps(balanceALT)
       balanceALTRESP = json.loads(balanceALTJSON)
       balanceALTFREE = balanceALTRESP['free']
@@ -141,5 +141,9 @@ def Strategy_PingPong():
         OrderSide = Jorder['side'] 
     except:
       print("EOFError")
+      print("balanceAltResp " + balanceALTRESP['code'] + " " + balanceALTRESP['msg'])
+      print("balanceBTCResp " + balanceBTCRESP['code'] + " " + balanceBTCRESP['msg'])
+      print("priceRESP  " + priceRESP['code'] + " " + priceRESP['msg'])
+      print("Jorder  " + Jorder['code'] + " " + Jorder['msg'])
 
 

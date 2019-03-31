@@ -27,7 +27,7 @@ def Strategy_PingPong_SMA():
   base_priceSMA = Analiz.SMA14(market=symbol+"BTC", tick_interval=Settings.tick_intervalPPSMA)
   base_priceSMA = round(float(base_priceSMA),8)
 
-  balanceBTC = client.get_asset_balance(asset='BTC')
+  balanceBTC = client.get_asset_balance(asset='BTC', recvWindow=1000000)
   balanceBTCJSON = json.dumps(balanceBTC)
   balanceBTCRESP = json.loads(balanceBTCJSON)
   balanceBTCFREE = balanceBTCRESP['free']
@@ -51,11 +51,11 @@ def Strategy_PingPong_SMA():
       base_priceSMA = Analiz.SMA14(market=symbol+"BTC", tick_interval=Settings.tick_intervalPPSMA)
       base_priceSMA = round(float(base_priceSMA),8)
       time.sleep(2)
-      balanceALT = client.get_asset_balance(asset=str(symbol))
+      balanceALT = client.get_asset_balance(asset=str(symbol), recvWindow=1000000)
       balanceALTJSON = json.dumps(balanceALT)
       balanceALTRESP = json.loads(balanceALTJSON)
       balanceALTFREE = balanceALTRESP['free']
-      balanceBTC = client.get_asset_balance(asset='BTC')
+      balanceBTC = client.get_asset_balance(asset='BTC', recvWindow=1000000)
       balanceBTCJSON = json.dumps(balanceBTC)
       balanceBTCRESP = json.loads(balanceBTCJSON)
       balanceBTCFREE = balanceBTCRESP['free']
@@ -152,3 +152,7 @@ def Strategy_PingPong_SMA():
           OrderSide = Jorder['side'] 
     except:
       print("EOFError")
+      print("balanceAltResp " + balanceALTRESP['code'] + " " + balanceALTRESP['msg'])
+      print("balanceBTCResp " + balanceBTCRESP['code'] + " " + balanceBTCRESP['msg'])
+      print("priceRESP  " + priceRESP['code'] + " " + priceRESP['msg'])
+      print("Jorder  " + Jorder['code'] + " " + Jorder['msg'])

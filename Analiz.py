@@ -4,6 +4,7 @@ import math
 import datetime
 import key
 import telegram
+import sys
 
 from binance.client import Client
 client = Client(key.api_key, key.api_secret)
@@ -17,6 +18,7 @@ bot = telegram.Bot(token=key.token)
 bot.send_message(chat_id=key.chat_id, text="Start NuBot")
 
 def RSI14(market, tick_interval):
+  try:
     licznik = 1
     avaGain = 0
     avaLoss = 0
@@ -27,7 +29,7 @@ def RSI14(market, tick_interval):
     data = requests.get(url).json()
     json1 = json.dumps(data)
     resp_price = json.loads(json1)
-
+    
     tab = [[0 for close in range(18)] for market in range(1)]
     tab[0][0] = market
     tab[0][1] = resp_price[0][4]
@@ -76,8 +78,15 @@ def RSI14(market, tick_interval):
             else:
                 RSI14 = 0
                 return RSI14
+  except: 
+    errorC = resp_price['code']
+    errorM = resp_price['msg']
+    if float(errorC) < 0:
+        print(str(errorC) + " " + str(errorM))
+        sys.exit()
 
 def SMA14(market, tick_interval):
+  try:
     #parms
     #market = 'GTOBTC'
     #tick_interval = '1h'
@@ -112,8 +121,15 @@ def SMA14(market, tick_interval):
             SMA14 = float(SMA14) / 14
             return str(SMA14)
             break
+  except:
+    errorC = resp_price['code']
+    errorM = resp_price['msg']
+    if float(errorC) < 0:
+        print(str(errorC) + " " + str(errorM))
+        sys.exit()
 
 def BB14(market, tick_interval):
+  try:
     Q = 0
     BB14up = 0
     BB14down = 0
@@ -164,28 +180,38 @@ def BB14(market, tick_interval):
                 "%-.8f" % (BB14down)
             ]
             break
+  except:
+    errorC = resp_price['code']
+    errorM = resp_price['msg']
+    if float(errorC) < 0:
+        print(str(errorC) + " " + str(errorM))
+        sys.exit()
 
 def Symbol(a):
-
+  try:
     if a == 0:
         a = 0
     else:
         a = a
-
     url = 'https://api.binance.com/api/v3/ticker/price'
     data = requests.get(url).json()
     json1 = json.dumps(data)
     resp_price = json.loads(json1)
     symbol = resp_price[a]['symbol']
-
     return symbol
+  except:
+    errorC = resp_price['code']
+    errorM = resp_price['msg']
+    if float(errorC) < 0:
+        print(str(errorC) + " " + str(errorM))
+        sys.exit()
 
 def TestValue(market, tick_interval):
+  try:
     #parms
     #market = 'GTOBTC'
     #tick_interval = '1h'
     #limit = 5
-
     url = 'https://api.binance.com/api/v1/klines?symbol=' + market + '&interval=' + tick_interval + '&limit=5'
     data = requests.get(url).json()
     json1 = json.dumps(data)
@@ -227,8 +253,15 @@ def TestValue(market, tick_interval):
         TestValue4 = 0
 
     return [TestValue1, TestValue2, TestValue3, TestValue4]
+  except:
+    errorC = resp_price['code']
+    errorM = resp_price['msg']
+    if float(errorC) < 0:
+        print(str(errorC) + " " + str(errorM))
+        sys.exit()
 
 def TestPrice(market, tick_interval):
+  try:
     #parms
     #market = 'GTOBTC'
     #tick_interval = '1h'
@@ -245,6 +278,12 @@ def TestPrice(market, tick_interval):
     TestPrice4 = resp_price[4][4]
 
     return [TestPrice0, TestPrice1, TestPrice2, TestPrice3, TestPrice4]
+  except:
+    errorC = resp_price['code']
+    errorM = resp_price['msg']
+    if float(errorC) < 0:
+        print(str(errorC) + " " + str(errorM))
+        sys.exit()
 
 def StartAnaliz():
     k = 0
@@ -257,7 +296,7 @@ def StartAnaliz():
                     a)[0:5] != 'CLOAK' and Symbol(
                         a)[0:5] != 'WINGS' and Symbol(a)[0:4] != 'SALT':
             if a <= 161:
-                balanceBTC = client.get_asset_balance(asset='BTC')
+                balanceBTC = client.get_asset_balance(asset='BTC', recvWindow=1000000)
                 balanceBTCJSON = json.dumps(balanceBTC)
                 balanceBTCRESP = json.loads(balanceBTCJSON)
                 balanceBTCFREE = balanceBTCRESP['free']
