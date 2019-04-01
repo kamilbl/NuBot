@@ -140,9 +140,23 @@ def Trading_with_SD(symbol):
           OrderStatus = Jorder['status']
           OrderID = Jorder['orderId']
           OrderSide = Jorder['side']
-          print("Create BUY order: " + "Price: " + str(NewdepthAskPrice) + "Quantity: " + str(qua) + "Status: " + str(OrderStatus))
+          print("Create BUY order: " + "Price: " + str(NewdepthAskPrice) + " Quantity: " + str(qua) + " Status: " + str(OrderStatus))
         while True:
+            price = client.get_symbol_ticker(symbol=str(symbol)+"BTC")
             print("Check status order and control prices")
+            depth = client.get_order_book(symbol = symbol + 'BTC', limit=5)
+            depthJSON = json.loads(json.dumps(depth))
+            depthAskPrice = depthJSON['asks'][0][0]
+            depthBidPrice = depthJSON['bids'][0][0]
+            NewdepthAskPrice = float(depthAskPrice) - float(Symbols.SymbolsMatrix[a][3])
+            NewdepthBidPrice = float(depthBidPrice) + float(Symbols.SymbolsMatrix[a][3])
+            NewdepthAskPrice = decimal.Decimal(NewdepthAskPrice)
+            NewdepthAskPrice = str(NewdepthAskPrice)[0:lep]
+            NewdepthBidPrice = decimal.Decimal(NewdepthBidPrice)
+            NewdepthBidPrice = str(NewdepthBidPrice)[0:lep]
+            print("NewdepthBidPrice: " + str(NewdepthBidPrice))
+            print("NewdepthAskPrice: " + str(NewdepthAskPrice))	
+            print("Price: " + str(price))				
             if str(OrderID) != "":
               price = client.get_symbol_ticker(symbol=str(symbol)+"BTC")
               check = client.get_order(symbol=str(symbol+"BTC"), orderId=OrderID, recvWindow=1000000)
