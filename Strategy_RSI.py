@@ -7,6 +7,7 @@ import math
 import telegram
 import datetime
 import Settings
+import decimal
 from terminaltables import AsciiTable
 
 from binance.client import Client
@@ -23,6 +24,7 @@ def Strategy_RSI():
   OrderStatus = ''
   OrderID = ''
   OrderSide = ''
+  budget_BTC = Settings.budget_BTCRSI
   start_operation = Settings.start_operationRSI
   symbol = Settings.symbolRSI
   RSI = Analiz.RSI14(market=symbol+"BTC", tick_interval=Settings.tick_intervalRSI)
@@ -31,8 +33,6 @@ def Strategy_RSI():
   balanceBTCJSON = json.dumps(balanceBTC)
   balanceBTCRESP = json.loads(balanceBTCJSON)
   balanceBTCFREE = balanceBTCRESP['free']
-  budget_BTC = balanceBTCFREE
-  #budget_BTC = Settings.budget_orderRSI
   
   k = 0
   a = 1
@@ -91,18 +91,21 @@ def Strategy_RSI():
         check = client.get_order(symbol=str(symbol+"BTC"), orderId=OrderID, recvWindow=1000000)
         Jorder = json.loads(json.dumps(check))
         OrderStatus = Jorder['status']
+        if OrderStatus == "FILLED" and OrderSide == "SELL":
+          start_operation = "BUY"
+          budget_BTC = Settings.budget_BTCRSI
+        elif  OrderStatus == "FILLED" and OrderSide == "BUY":
+          start_operation = "SELL"
+          budget_BTC = Settings.budget_BTCRSI
 			
-      if start_operation == "SELL" and float(RSI) > float(Settings.maxRSI):
+      if start_operation == "SELL" and float(RSI) > float(Settings.maxRSI) and float(budget_BTC) > 0:
           qua = float(budget_BTC) / float(price)
+          budget_BTC = 0
           if le==1:
             qua = math.floor(qua)
           else: 
             qua = str(qua)[0:le]
           OrderSell = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_SELL, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(price))
-          #print(str(OrderSell))
-          start_operation = "BUY"
-          budget_BTC = float(qua)*float(price)
-          budget_BTC = round(budget_BTC,8)
           com = "\t Sell Order. Balance: " + str(qua) + "\tPrice: " + str(price) + "\tNext operation: " + str(start_operation) + "\tBudget Total: " + str(budget_BTC)
           print(str(com))
           bot.send_message(chat_id=key.chat_id, text=str(com))
@@ -111,15 +114,14 @@ def Strategy_RSI():
           OrderID = Jorder['orderId']
           OrderSide = Jorder['side']
 
-      if start_operation == "BUY" and float(RSI) < float(Settings.minRSI):
-          qua = float(balanceALTFREE)
+      if start_operation == "BUY" and float(RSI) < float(Settings.minRSI) and budget_BTC > 0:
+          qua = float(budget_BTC) / float(price)
+          budget_BTC = 0
           if le==1:
             qua = math.floor(qua)
           else: 
             qua = str(qua)[0:le]
-          OrderBuy = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_BUY, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(price))
-          #print(str(OrderBuy))
-          start_operation = "SELL"  
+          OrderBuy = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_BUY, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(price)) 
           com = "\t Buy Order. Balance: " + str(qua) + "\tPrice: " + str(price) + "\tNext operation: " + str(start_operation) + "\tBalance ALT: " + str(qua)
           print(str(com))
           bot.send_message(chat_id=key.chat_id, text=str(com))

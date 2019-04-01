@@ -7,6 +7,7 @@ import math
 import telegram
 import datetime
 import Settings
+import decimal
 from terminaltables import AsciiTable
 
 from binance.client import Client
@@ -23,6 +24,7 @@ def Strategy_PingPong_SMA():
   OrderStatus = ''
   OrderID = ''
   OrderSide = ''
+  budget_BTC = Settings.budget_BTCPPSMA
   symbol = Settings.symbolPPSMA
   base_priceSMA = Analiz.SMA14(market=symbol+"BTC", tick_interval=Settings.tick_intervalPPSMA)
   base_priceSMA = round(float(base_priceSMA),8)
@@ -31,7 +33,6 @@ def Strategy_PingPong_SMA():
   balanceBTCJSON = json.dumps(balanceBTC)
   balanceBTCRESP = json.loads(balanceBTCJSON)
   balanceBTCFREE = balanceBTCRESP['free']
-  budget_BTC = balanceBTCFREE
 
   start_operation = Settings.start_operationPPSMA
   up_profit = Settings.up_profitPPSMA
@@ -49,7 +50,9 @@ def Strategy_PingPong_SMA():
   while True:
     try:
       base_priceSMA = Analiz.SMA14(market=symbol+"BTC", tick_interval=Settings.tick_intervalPPSMA)
-      base_priceSMA = round(float(base_priceSMA),8)
+      #base_priceSMA = round(float(base_priceSMA),8)
+      base_priceSMA = decimal.Decimal(base_priceSMA)
+      base_priceSMA = str(base_priceSMA)[0:10]
       time.sleep(2)
       balanceALT = client.get_asset_balance(asset=str(symbol), recvWindow=1000000)
       balanceALTJSON = json.dumps(balanceALT)
@@ -69,9 +72,11 @@ def Strategy_PingPong_SMA():
       aprofit = round(aprofit,2)
 
       up_price = float(up_profit) * float(price)
-      up_price = round(up_price,8)
+      up_price = decimal.Decimal(up_price)
+      up_price = str(up_price)[0:10]
       down_price = float(down_profit) * float(price)
-      down_price = round(down_price,8)
+      down_price = decimal.Decimal(down_price)
+      down_price = str(down_price)[0:10]
 
       up_profit2 = (float(up_profit) - 1) * 100
       up_profit2 = round(up_profit2, 2)
@@ -114,18 +119,22 @@ def Strategy_PingPong_SMA():
         check = client.get_order(symbol=str(symbol+"BTC"), orderId=OrderID, recvWindow=1000000)
         Jorder = json.loads(json.dumps(check))
         OrderStatus = Jorder['status']
+        if OrderStatus == "FILLED" and OrderSide == "SELL":
+          start_operation = "BUY"
+          budget_BTC = Settings.budget_BTCPPSMA
+        elif  OrderStatus == "FILLED" and OrderSide == "BUY":
+          start_operation = "SELL"
+          budget_BTC = Settings.budget_BTCPPSMA
 
-      if start_operation == "SELL" and float(base_priceSMA)*float(up_profit) < float(price):
-          qua = float(balanceALTFREE)
+      if start_operation == "SELL" and float(base_priceSMA)*float(up_profit) < float(price) and float(budget_BTC)>0:
+          qua = float(budget_BTC) / float(price)
+          budget_BTC = 0
           if le==1:
             qua = math.floor(qua)
           else: 
             qua = str(qua)[0:le]
           OrderSell = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_SELL, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(price))
           print(str(OrderSell))
-          start_operation = "BUY"
-          budget_BTC = float(qua)*float(base_priceSMA)
-          budget_BTC = round(budget_BTC,8)
           com = "\t Sell Order. Balance: " + str(qua) + "\tPrice: " + str(price) + "\tNext operation: " + str(start_operation) + "\tBudget Total: " + str(budget_BTC)
           print(str(com))
           bot.send_message(chat_id=key.chat_id, text=str(com))
@@ -134,15 +143,14 @@ def Strategy_PingPong_SMA():
           OrderID = Jorder['orderId']
           OrderSide = Jorder['side']
 
-      if start_operation == "BUY" and float(base_priceSMA)*float(down_profit) > float(price):
+      if start_operation == "BUY" and float(base_priceSMA)*float(down_profit) > float(price) and float(budget_BTC)>0:
           qua = float(budget_BTC) / float(price)
           if le==1:
             qua = math.floor(qua)
           else: 
             qua = str(qua)[0:le]
           OrderBuy = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_BUY, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(price))
-          print(str(OrderBuy))
-          start_operation = "SELL"  
+          print(str(OrderBuy)) 
           com = "\t Buy Order. Balance: " + str(qua) + "\tPrice: " + str(price) + "\tNext operation: " + str(start_operation) + "\tBalance ALT: " + str(qua)
           print(str(com))
           bot.send_message(chat_id=key.chat_id, text=str(com))
