@@ -38,7 +38,6 @@ def Strategy_BB():
   balanceBTCJSON = json.dumps(balanceBTC)
   balanceBTCRESP = json.loads(balanceBTCJSON)
   balanceBTCFREE = balanceBTCRESP['free']
-  budget_BTC = balanceBTCFREE
   start_operation = Settings.start_operationBB
   
   k = 0
