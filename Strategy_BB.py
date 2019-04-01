@@ -25,6 +25,7 @@ def Strategy_BB():
   OrderStatus = ''
   OrderID = ''
   OrderSide = ''
+	budget_BTC = Settings.budget_BTCBB
   symbol = Settings.symbolBB
   base_priceBB = Analiz.BB14(market=symbol+"BTC", tick_interval=Settings.tick_intervalBB)[0]
   base_priceBB = round(float(base_priceBB),8)
@@ -38,6 +39,7 @@ def Strategy_BB():
   balanceBTCJSON = json.dumps(balanceBTC)
   balanceBTCRESP = json.loads(balanceBTCJSON)
   balanceBTCFREE = balanceBTCRESP['free']
+
   start_operation = Settings.start_operationBB
   
   k = 0
