@@ -69,16 +69,21 @@ def Strategy_Scalping_Depth():
 		Trading_with_SD(symbol=chooes)
 
 def Trading_with_SD(symbol):
-  budgetBTCSD = Settings.budgetBTCSD
   OrderStatus = ''
   OrderID = ''
   OrderSide = ''
   k = 0
   a = getA(symbol = symbol)
+  budgetBTCSD = Settings.budgetBTCSD
+  startoperation = Settings.start_operationSD
+  print("Start operation: " + startoperation)
+  print("Your budget: " + str(budgetBTCSD))
+  print("Let's start ...")
   while k < 1:
     try:
-      print("Let's start ...")
       time.sleep(2)
+      le = len(str(Symbols.SymbolsMatrix[a][2]))
+      lep = len(str(Symbols.SymbolsMatrix[a][3]))
       depth = client.get_order_book(symbol = symbol + 'BTC', limit=5)
       depthJSON = json.loads(json.dumps(depth))
       depthAskPrice = depthJSON['asks'][0][0]
@@ -87,29 +92,27 @@ def Trading_with_SD(symbol):
       depthBidValue = depthJSON['bids'][0][1]
       NewdepthAskPrice = float(depthAskPrice) - float(Symbols.SymbolsMatrix[a][3])
       NewdepthBidPrice = float(depthBidPrice) + float(Symbols.SymbolsMatrix[a][3])
-      depth = (float(depthAskPrice) / float(depthBidPrice)) - 1
-      depth = round((float(depth) * 100),2)
-      Newdepth = (float(NewdepthAskPrice) / float(NewdepthBidPrice)) - 1
-      Newdepth = round((float(Newdepth) * 100),2)
-      le = len(str(Symbols.SymbolsMatrix[a][2]))
-      lep = len(str(Symbols.SymbolsMatrix[a][3]))
-      depthAskPrice = str(depthAskPrice)[0:lep]
-      depthBidPrice = str(depthBidPrice)[0:lep]
       NewdepthAskPrice = decimal.Decimal(NewdepthAskPrice)
       NewdepthAskPrice = str(NewdepthAskPrice)[0:lep]
       NewdepthBidPrice = decimal.Decimal(NewdepthBidPrice)
       NewdepthBidPrice = str(NewdepthBidPrice)[0:lep]
+      depth = (float(depthAskPrice) / float(depthBidPrice)) - 1
+      depth = round((float(depth) * 100),2)
+      Newdepth = (float(NewdepthAskPrice) / float(NewdepthBidPrice)) - 1
+      Newdepth = round((float(Newdepth) * 100),2)
+      depthAskPrice = str(depthAskPrice)[0:lep]
+      depthBidPrice = str(depthBidPrice)[0:lep]
       qua = float(Settings.budgetBTCSD)/float(NewdepthAskPrice)
       if le==1:
         qua = math.floor(qua)
       else: 
         qua = str(qua)[0:le]
-      print(qua)
       table_depth = [
 					['Symbol', 'Ask Price (SELL)', 'Ask Volumen', 'Bid Price (BUY)', 'Bid Volumen', 'Depth'],
 					[str(symbol), str(depthAskPrice), str(depthAskValue), str(depthBidPrice), str(depthBidValue), str(depth)+'%'],
 					[str(symbol), str(NewdepthAskPrice), str(qua), str(NewdepthBidPrice), str(qua), str(Newdepth)+'%'],
-					["Status Order", str(OrderStatus), "Id Order", str(OrderID), "Side Order", str(OrderSide)]
+					["Status Order", str(OrderStatus), "Id Order", str(OrderID), "Side Order", str(OrderSide)],
+					["StartOperation", str(startoperation), "Budget BTC", str(budgetBTCSD)]
 					]
       d = AsciiTable(table_depth)
       
@@ -123,27 +126,36 @@ def Trading_with_SD(symbol):
           else: 
             qua = str(qua)[0:le]
           budgetBTCSD = 0
+          print("Try create Sell order. Price: " + str(NewdepthAskPrice) + "Quantity: " + str(qua) + "Change budget BTC in this strategy: " + str(Settings.budgetBTCSD) + " ==>> " + str(budgetBTCSD) )
           OrderSell = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_SELL, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(NewdepthAskPrice))
           Jorder = json.loads(json.dumps(OrderSell))
           OrderStatus = Jorder['status']
           OrderID = Jorder['orderId']
           OrderSide = Jorder['side']
-          print("Create SELL order: " + "Price: " + str(NewdepthAskPrice) + "Quantity: " + str(qua) + "Status: " + str(OrderStatus))
+          print("Create SELL order: " + "Price: " + str(NewdepthAskPrice) + " Quantity: " + str(qua) + " Status: " + str(OrderStatus) + " OrderID: " + str(OrderID) + " Side: " +str(OrderSide))
         if startoperation == "BUY" and float(budgetBTCSD) > 0:
           qua = float(Settings.budgetBTCSD)/float(NewdepthAskPrice)
           if le==1:
             qua = math.floor(qua)
           else: 
             qua = str(qua)[0:le]
+          budgetBTCSD = 0
+          print("Try create Buy order. Price: " + str(NewdepthAskPrice) + " Quantity: " + str(qua) + " Change budget BTC in this strategy: " + str(Settings.budgetBTCSD) + " ==>> " + str(budgetBTCSD) )
           OrderBuy = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_BUY, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(NewdepthAskPrice))
           Jorder = json.loads(json.dumps(OrderBuy))
           OrderStatus = Jorder['status']
           OrderID = Jorder['orderId']
           OrderSide = Jorder['side']
-          print("Create BUY order: " + "Price: " + str(NewdepthAskPrice) + " Quantity: " + str(qua) + " Status: " + str(OrderStatus))
+          print("Create BUY order: " + "Price: " + str(NewdepthAskPrice) + " Quantity: " + str(qua) + " Status: " + str(OrderStatus) + " OrderID: " + str(OrderID) + " Side: " +str(OrderSide))
         while True:
             price = client.get_symbol_ticker(symbol=str(symbol)+"BTC")
-            print("Check status order and control prices")
+            priceJSON = json.dumps(price)
+            priceRESP = json.loads(priceJSON)
+            price = priceRESP['price']
+            depth = client.get_order_book(symbol = symbol + 'BTC', limit=5)
+            depthJSON = json.loads(json.dumps(depth))
+            depthAskPrice = depthJSON['asks'][0][0]
+            depthBidPrice = depthJSON['bids'][0][0]
             depth = client.get_order_book(symbol = symbol + 'BTC', limit=5)
             depthJSON = json.loads(json.dumps(depth))
             depthAskPrice = depthJSON['asks'][0][0]
@@ -154,11 +166,11 @@ def Trading_with_SD(symbol):
             NewdepthAskPrice = str(NewdepthAskPrice)[0:lep]
             NewdepthBidPrice = decimal.Decimal(NewdepthBidPrice)
             NewdepthBidPrice = str(NewdepthBidPrice)[0:lep]
+            print("Check status order and control prices")
             print("NewdepthBidPrice: " + str(NewdepthBidPrice))
             print("NewdepthAskPrice: " + str(NewdepthAskPrice))	
             print("Price: " + str(price))				
             if str(OrderID) != "":
-              price = client.get_symbol_ticker(symbol=str(symbol)+"BTC")
               check = client.get_order(symbol=str(symbol+"BTC"), orderId=OrderID, recvWindow=1000000)
               Jorder = json.loads(json.dumps(check))
               OrderStatus = Jorder['status']
@@ -166,19 +178,31 @@ def Trading_with_SD(symbol):
               if OrderStatus == "FILLED" and OrderSide == "SELL":
                 startoperation = "BUY"
                 budgetBTCSD = Settings.budgetBTCSD
-                print("Bot sold your coins. Market: " + str(symbol+"BTC") + "Quantity: " + str(qua))
+                OrderID = ""
+                print("Bot sold your coins. Market: " + str(symbol+"BTC") + " Quantity: " + str(qua) + " Set new budget BTC: " + str(budgetBTCSD) + " Change StartOperation on: " + str(startoperation))
                 break
               elif OrderStatus == "FILLED" and OrderSide == "BUY":
-                startoperation = "BUY"
+                startoperation = "SELL"
                 budgetBTCSD = Settings.budgetBTCSD
-                print("Bot bought your coins. Market: " + str(symbol+"BTC") + "Quantity: " + str(qua))
+                OrderID = ""
+                print("Bot bought your coins. Market: " + str(symbol+"BTC") + " Quantity: " + str(qua) + " Set new budget BTC: " + str(budgetBTCSD) + " Change StartOperation on: " + str(startoperation))
                 break
-              elif OrderSide == "SELL" and float(price) < float(NewdepthAskPrice):
+              elif OrderSide == "SELL" and float(depthAskPrice) < float(NewdepthAskPrice):
                 result = client.cancel_order(symbol=str(symbol+"BTC"),orderId=str(OrderID))
+                startoperation = "SELL"
+                budgetBTCSD = Settings.budgetBTCSD
+                OrderID = ""
+                OrderStatus = ""
+                OrderSide = ""
                 print("Bot cancel last order, because price goes down...")
                 break
-              elif OrderSide == "BUY" and float(price) > float(NewdepthBidPrice):
+              elif OrderSide == "BUY" and float(depthBidPrice) > float(NewdepthBidPrice):
                 result = client.cancel_order(symbol=str(symbol+"BTC"),orderId=str(OrderID))
+                startoperation = "BUY"
+                budgetBTCSD = Settings.budgetBTCSD
+                OrderID = ""
+                OrderStatus = ""
+                OrderSide = ""
                 print("Bot cancel last order, because price goes up...")
                 break		
               else:

@@ -39,5 +39,5 @@ start_operationRSI = "SELL"   #or "BUY"
 
 #Strategy Scalping Depth
 minDepth = 0.27
-budgetBTCSD = 0.02
-start_operationSD = "SELL"   #or "BUY"
+budgetBTCSD = 0.019
+start_operationSD = "BUY"   #or "BUY"
