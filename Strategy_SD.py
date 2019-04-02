@@ -74,13 +74,26 @@ def Trading_with_SD(symbol):
   OrderSide = ''
   k = 0
   a = getA(symbol = symbol)
-  budgetBTCSD = Settings.budgetBTCSD
+  #budgetBTCSD = Settings.budgetBTCSD
   startoperation = Settings.start_operationSD
   print("Start operation: " + startoperation)
-  print("Your budget: " + str(budgetBTCSD))
+  #print("Your budget: " + str(budgetBTCSD))
   print("Let's start ...")
   while k < 1:
     try:
+      balanceALT = client.get_asset_balance(asset=str(symbol), recvWindow=1000000)
+      balanceALTJSON = json.dumps(balanceALT)
+      balanceALTRESP = json.loads(balanceALTJSON)
+      balanceALTFREE = balanceALTRESP['free']
+      budget_ALT = balanceALTFREE
+      balanceBTC = client.get_asset_balance(asset='BTC', recvWindow=1000000)
+      balanceBTCJSON = json.dumps(balanceBTC)
+      balanceBTCRESP = json.loads(balanceBTCJSON)
+      balanceBTCFREE = balanceBTCRESP['free']
+      budgetBTCSD = float(balanceBTCFREE) * float(Settings.use_budget_BTCSD_procent)
+      budgetBTCSD = round(budgetBTCSD,8)
+      budgetBTCSD = decimal.Decimal(budgetBTCSD)
+      budgetBTCSD = str(budgetBTCSD)[0:10]
       time.sleep(2)
       le = len(str(Symbols.SymbolsMatrix[a][2]))
       lep = len(str(Symbols.SymbolsMatrix[a][3]))
@@ -102,7 +115,7 @@ def Trading_with_SD(symbol):
       Newdepth = round((float(Newdepth) * 100),2)
       depthAskPrice = str(depthAskPrice)[0:lep]
       depthBidPrice = str(depthBidPrice)[0:lep]
-      qua = float(Settings.budgetBTCSD)/float(NewdepthAskPrice)
+      qua = float(budgetBTCSD)/float(NewdepthAskPrice)
       if le==1:
         qua = math.floor(qua)
       else: 
@@ -112,42 +125,57 @@ def Trading_with_SD(symbol):
 					[str(symbol), str(depthAskPrice), str(depthAskValue), str(depthBidPrice), str(depthBidValue), str(depth)+'%'],
 					[str(symbol), str(NewdepthAskPrice), str(qua), str(NewdepthBidPrice), str(qua), str(Newdepth)+'%'],
 					["Status Order", str(OrderStatus), "Id Order", str(OrderID), "Side Order", str(OrderSide)],
-					["StartOperation", str(startoperation), "Budget BTC", str(budgetBTCSD)]
+					["Next operation", str(startoperation), "Budget BTC", str(budgetBTCSD), "Budget ALT" , str(budget_ALT)]
 					]
       d = AsciiTable(table_depth)
       
       print(d.table)
       if float(Newdepth) > float(Settings.minDepth):
-        startoperation = Settings.start_operationSD
-        if startoperation == "SELL" and float(budgetBTCSD) > 0:
-          qua = float(Settings.budgetBTCSD)/float(NewdepthAskPrice)
+        #startoperation = Settings.start_operationSD
+        if startoperation == "SELL" and float(budget_ALT) > 0:
+          qua = float(budget_ALT)
           if le==1:
             qua = math.floor(qua)
           else: 
             qua = str(qua)[0:le]
-          budgetBTCSD = 0
           print("Try create Sell order. Price: " + str(NewdepthAskPrice) + "Quantity: " + str(qua) + "Change budget BTC in this strategy: " + str(Settings.budgetBTCSD) + " ==>> " + str(budgetBTCSD) )
           OrderSell = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_SELL, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(NewdepthAskPrice))
           Jorder = json.loads(json.dumps(OrderSell))
           OrderStatus = Jorder['status']
           OrderID = Jorder['orderId']
           OrderSide = Jorder['side']
-          print("Create SELL order: " + "Price: " + str(NewdepthAskPrice) + " Quantity: " + str(qua) + " Status: " + str(OrderStatus) + " OrderID: " + str(OrderID) + " Side: " +str(OrderSide))
+          OrderPrice = Jorder['price']
+          startoperation = "" #BUY
+          print("Create SELL order: " + "\n\tPrice: " + str(NewdepthAskPrice) + "\n\tQuantity: " + str(qua) + "\n\tStatus: " + str(OrderStatus) + "\n\tOrderID: " + str(OrderID) + "\n\tSide: " +str(OrderSide))
         if startoperation == "BUY" and float(budgetBTCSD) > 0:
-          qua = float(Settings.budgetBTCSD)/float(NewdepthAskPrice)
+          qua = float(budgetBTCSD) / float(NewdepthBidPrice)
           if le==1:
             qua = math.floor(qua)
           else: 
             qua = str(qua)[0:le]
-          budgetBTCSD = 0
-          print("Try create Buy order. Price: " + str(NewdepthAskPrice) + " Quantity: " + str(qua) + " Change budget BTC in this strategy: " + str(Settings.budgetBTCSD) + " ==>> " + str(budgetBTCSD) )
-          OrderBuy = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_BUY, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(NewdepthAskPrice))
+          print("Try create Buy order. Price: " + str(NewdepthBidPrice) + " Quantity: " + str(qua) + " Change budget BTC in this strategy: " + str(Settings.budgetBTCSD) + " ==>> " + str(budgetBTCSD) )
+          OrderBuy = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_BUY, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(NewdepthBidPrice))
           Jorder = json.loads(json.dumps(OrderBuy))
           OrderStatus = Jorder['status']
           OrderID = Jorder['orderId']
           OrderSide = Jorder['side']
-          print("Create BUY order: " + "Price: " + str(NewdepthAskPrice) + " Quantity: " + str(qua) + " Status: " + str(OrderStatus) + " OrderID: " + str(OrderID) + " Side: " +str(OrderSide))
+          OrderPrice = Jorder['price']
+          startoperation = "" #SELL
+          print("Create BUY order: " + "\n\tPrice: " + str(NewdepthBidPrice) + "\n\tQuantity: " + str(qua) + "\n\tStatus: " + str(OrderStatus) + "\n\tOrderID: " + str(OrderID) + "\n\tSide: " +str(OrderSide))
         while True:
+            balanceALT = client.get_asset_balance(asset=str(symbol), recvWindow=1000000)
+            balanceALTJSON = json.dumps(balanceALT)
+            balanceALTRESP = json.loads(balanceALTJSON)
+            balanceALTFREE = balanceALTRESP['free']
+            budget_ALT = balanceALTFREE
+            balanceBTC = client.get_asset_balance(asset='BTC', recvWindow=1000000)
+            balanceBTCJSON = json.dumps(balanceBTC)
+            balanceBTCRESP = json.loads(balanceBTCJSON)
+            balanceBTCFREE = balanceBTCRESP['free']
+            budgetBTCSD = float(balanceBTCFREE) * float(Settings.use_budget_BTCSD_procent)
+            budgetBTCSD = round(budgetBTCSD,8)
+            budgetBTCSD = decimal.Decimal(budgetBTCSD)
+            budgetBTCSD = str(budgetBTCSD)[0:10]
             price = client.get_symbol_ticker(symbol=str(symbol)+"BTC")
             priceJSON = json.dumps(price)
             priceRESP = json.loads(priceJSON)
@@ -165,11 +193,7 @@ def Trading_with_SD(symbol):
             NewdepthAskPrice = decimal.Decimal(NewdepthAskPrice)
             NewdepthAskPrice = str(NewdepthAskPrice)[0:lep]
             NewdepthBidPrice = decimal.Decimal(NewdepthBidPrice)
-            NewdepthBidPrice = str(NewdepthBidPrice)[0:lep]
-            print("Check status order and control prices")
-            print("NewdepthBidPrice: " + str(NewdepthBidPrice))
-            print("NewdepthAskPrice: " + str(NewdepthAskPrice))	
-            print("Price: " + str(price))				
+            NewdepthBidPrice = str(NewdepthBidPrice)[0:lep]			
             if str(OrderID) != "":
               check = client.get_order(symbol=str(symbol+"BTC"), orderId=OrderID, recvWindow=1000000)
               Jorder = json.loads(json.dumps(check))
@@ -177,36 +201,100 @@ def Trading_with_SD(symbol):
               print("Check status Order: " + str(OrderStatus))
               if OrderStatus == "FILLED" and OrderSide == "SELL":
                 startoperation = "BUY"
-                budgetBTCSD = Settings.budgetBTCSD
+                time.sleep(1)
+                balanceBTC = client.get_asset_balance(asset='BTC', recvWindow=1000000)
+                balanceBTCJSON = json.dumps(balanceBTC)
+                balanceBTCRESP = json.loads(balanceBTCJSON)
+                balanceBTCFREE = balanceBTCRESP['free']
+                budget_BTC = float(balanceBTCFREE) * float(Settings.use_budget_BTCBB_procent)
+                budget_BTC = round(budget_BTC,8)
+                budget_BTC = decimal.Decimal(budget_BTC)
+                budget_BTC = str(budget_BTC)[0:10]
+                balanceALT = client.get_asset_balance(asset=str(symbol), recvWindow=1000000)
+                balanceALTJSON = json.dumps(balanceALT)
+                balanceALTRESP = json.loads(balanceALTJSON)
+                balanceALTFREE = balanceALTRESP['free']
+                budget_ALT = float(balanceALTFREE)
                 OrderID = ""
-                print("Bot sold your coins. Market: " + str(symbol+"BTC") + " Quantity: " + str(qua) + " Set new budget BTC: " + str(budgetBTCSD) + " Change StartOperation on: " + str(startoperation))
+                print("Bot sold your coins. Market: " + str(symbol+"BTC") + " Quantity: " + str(qua) + " Budget BTC: " + str(budgetBTCSD) + " Budget ALT: " + str(budget_ALT)  + " Change StartOperation on: " + str(startoperation))
                 break
               elif OrderStatus == "FILLED" and OrderSide == "BUY":
                 startoperation = "SELL"
-                budgetBTCSD = Settings.budgetBTCSD
+                time.sleep(1)
+                balanceBTC = client.get_asset_balance(asset='BTC', recvWindow=1000000)
+                balanceBTCJSON = json.dumps(balanceBTC)
+                balanceBTCRESP = json.loads(balanceBTCJSON)
+                balanceBTCFREE = balanceBTCRESP['free']
+                budget_BTC = float(balanceBTCFREE) * float(Settings.use_budget_BTCBB_procent)
+                budget_BTC = round(budget_BTC,8)
+                budget_BTC = decimal.Decimal(budget_BTC)
+                budget_BTC = str(budget_BTC)[0:10]
+                balanceALT = client.get_asset_balance(asset=str(symbol), recvWindow=1000000)
+                balanceALTJSON = json.dumps(balanceALT)
+                balanceALTRESP = json.loads(balanceALTJSON)
+                balanceALTFREE = balanceALTRESP['free']
+                budget_ALT = float(balanceALTFREE)
                 OrderID = ""
-                print("Bot bought your coins. Market: " + str(symbol+"BTC") + " Quantity: " + str(qua) + " Set new budget BTC: " + str(budgetBTCSD) + " Change StartOperation on: " + str(startoperation))
+                print("Bot bought your coins. Market: " + str(symbol+"BTC") + " Quantity: " + str(qua) + " Set new budget BTC: " + str(budgetBTCSD) + " Budget ALT: " + str(budget_ALT) + " Change StartOperation on: " + str(startoperation))
                 break
-              elif OrderSide == "SELL" and float(depthAskPrice) < float(NewdepthAskPrice):
+              elif OrderSide == "SELL" and float(depthAskPrice) < float(OrderPrice):  #NewdepthAskPrice
                 result = client.cancel_order(symbol=str(symbol+"BTC"),orderId=str(OrderID))
                 startoperation = "SELL"
-                budgetBTCSD = Settings.budgetBTCSD
+                time.sleep(1)
+                balanceBTC = client.get_asset_balance(asset='BTC', recvWindow=1000000)
+                balanceBTCJSON = json.dumps(balanceBTC)
+                balanceBTCRESP = json.loads(balanceBTCJSON)
+                balanceBTCFREE = balanceBTCRESP['free']
+                budget_BTC = float(balanceBTCFREE) * float(Settings.use_budget_BTCBB_procent)
+                budget_BTC = round(budget_BTC,8)
+                budget_BTC = decimal.Decimal(budget_BTC)
+                budget_BTC = str(budget_BTC)[0:10]
+                balanceALT = client.get_asset_balance(asset=str(symbol), recvWindow=1000000)
+                balanceALTJSON = json.dumps(balanceALT)
+                balanceALTRESP = json.loads(balanceALTJSON)
+                balanceALTFREE = balanceALTRESP['free']
+                budget_ALT = float(balanceALTFREE)
                 OrderID = ""
                 OrderStatus = ""
                 OrderSide = ""
-                print("Bot cancel last order, because price goes down...")
+                print("Bot CANCEL last order, because price goes down...")
+                print("\t\tBudget BTC: " + str(budgetBTCSD))
+                print("\t\tBudget ALT: " + str(budget_ALT))
                 break
-              elif OrderSide == "BUY" and float(depthBidPrice) > float(NewdepthBidPrice):
+              elif OrderSide == "BUY" and float(depthBidPrice) > float(OrderPrice):  #NewdepthBidPrice
                 result = client.cancel_order(symbol=str(symbol+"BTC"),orderId=str(OrderID))
                 startoperation = "BUY"
-                budgetBTCSD = Settings.budgetBTCSD
+                time.sleep(1)
+                balanceBTC = client.get_asset_balance(asset='BTC', recvWindow=1000000)
+                balanceBTCJSON = json.dumps(balanceBTC)
+                balanceBTCRESP = json.loads(balanceBTCJSON)
+                balanceBTCFREE = balanceBTCRESP['free']
+                budget_BTC = float(balanceBTCFREE) * float(Settings.use_budget_BTCBB_procent)
+                budget_BTC = round(budget_BTC,8)
+                budget_BTC = decimal.Decimal(budget_BTC)
+                budget_BTC = str(budget_BTC)[0:10]
+                balanceALT = client.get_asset_balance(asset=str(symbol), recvWindow=1000000)
+                balanceALTJSON = json.dumps(balanceALT)
+                balanceALTRESP = json.loads(balanceALTJSON)
+                balanceALTFREE = balanceALTRESP['free']
+                budget_ALT = float(balanceALTFREE)
                 OrderID = ""
                 OrderStatus = ""
                 OrderSide = ""
-                print("Bot cancel last order, because price goes up...")
+                print("Bot CANCEL last order, because price goes up...")
+                print("\t\tBudget BTC: " + str(budgetBTCSD))
+                print("\t\tBudget ALT: " + str(budget_ALT))
                 break		
               else:
-                print("Please wait...")	
+                print('##################################################################')
+                print("Check status order and control prices. Please wait...")
+                print("Status order: " + str(OrderStatus) + " Side: " + str(OrderSide) + " Order ID" + str(OrderID))
+                print("\t\tNewdepthBidPrice: " + str(NewdepthBidPrice))
+                print("\t\tNewdepthAskPrice: " + str(NewdepthAskPrice))	
+                print("\t\tBudget BTC: " + str(budgetBTCSD))
+                print("\t\tBudget ALT: " + str(budget_ALT))
+                print("\t\tPrice: " + str(price))
+                print('##################################################################')
     except:
       print("ERROR")
       print(check)

@@ -25,7 +25,8 @@ def Strategy_BB():
   OrderStatus = ''
   OrderID = ''
   OrderSide = ''
-  budget_BTC = Settings.budget_BTCBB
+  #budget_BTC = Settings.budget_BTCBB
+  #budget_ALT = 0
   symbol = Settings.symbolBB
   base_priceBB = Analiz.BB14(market=symbol+"BTC", tick_interval=Settings.tick_intervalBB)[0]
   base_priceBB = round(float(base_priceBB),8)
@@ -34,12 +35,20 @@ def Strategy_BB():
   up_price = round(float(up_price),8)
   down_price = Analiz.BB14(market=symbol+"BTC", tick_interval=Settings.tick_intervalBB)[2]
   down_price = round(float(down_price),8)
-
+  
+  balanceALT = client.get_asset_balance(asset=str(symbol), recvWindow=1000000)
+  balanceALTJSON = json.dumps(balanceALT)
+  balanceALTRESP = json.loads(balanceALTJSON)
+  balanceALTFREE = balanceALTRESP['free']
+  budget_ALT = balanceALTFREE
   balanceBTC = client.get_asset_balance(asset='BTC', recvWindow=1000000)
   balanceBTCJSON = json.dumps(balanceBTC)
   balanceBTCRESP = json.loads(balanceBTCJSON)
   balanceBTCFREE = balanceBTCRESP['free']
-
+  budget_BTC = float(balanceBTCFREE) * float(Settings.use_budget_BTCBB_procent)
+  budget_BTC = round(budget_BTC,8)
+  budget_BTC = decimal.Decimal(budget_BTC)
+  budget_BTC = str(budget_BTC)[0:10]
   start_operation = Settings.start_operationBB
   
   k = 0
@@ -104,7 +113,10 @@ def Strategy_BB():
       table_balance= [
           ['Balance', 'Value'],
           [str(symbol), str(balanceALTFREE)],
-          ['BTC', str(balanceBTCFREE)]
+          ['BTC', str(balanceBTCFREE)],
+					['Budget BTC', str(budget_BTC)],
+					['Budget ALT', str(budget_ALT)],
+					['Next operation', str(start_operation)]
       ]
 
       table_order= [
@@ -129,20 +141,31 @@ def Strategy_BB():
         OrderStatus = Jorder['status']
         if OrderStatus == "FILLED" and OrderSide == "SELL":
           start_operation = "BUY"
-          budget_BTC = Settings.budget_BTCBB
+          #budget_BTC = Settings.budget_BTCBB
+          budget_BTC = float(balanceBTCFREE) * float(Settings.use_budget_BTCBB_procent)
+          budget_BTC = round(budget_BTC,8)
+          budget_BTC = decimal.Decimal(budget_BTC)
+          budget_BTC = str(budget_BTC)[0:10]
+          budget_ALT = float(balanceALTFREE)
+          OrderID = ""
         elif  OrderStatus == "FILLED" and OrderSide == "BUY":
           start_operation = "SELL"
-          budget_BTC = Settings.budget_BTCBB
-
-      if start_operation == "SELL" and float(up_price) < float(price) and float(budget_BTC)>0:
-          qua = float(budget_BTC) / float(price)
-          budget_BTC = 0
+          #budget_BTC = Settings.budget_BTCBB
+          budget_BTC = float(balanceBTCFREE) * float(Settings.use_budget_BTCBB_procent)
+          budget_BTC = round(budget_BTC,8)
+          budget_BTC = decimal.Decimal(budget_BTC)
+          budget_BTC = str(budget_BTC)[0:10]
+          budget_ALT = float(balanceALTFREE)
+          OrderID = ""
+					
+      if start_operation == "SELL" and float(up_price) < float(price) and float(budget_ALT) > 0:
+          qua = float(budget_ALT)
           if le==1:
             qua = math.floor(qua)
           else: 
             qua = str(qua)[0:le]
           OrderSell = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_SELL, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(price))
-          com = "\t Sell Order. Balance: " + str(qua) + "\tPrice: " + str(price) + "\tNext operation: " + str(start_operation)
+          com = "\t Sell Order. Balance: " + str(qua) + "\tPrice: " + str(price)
           print(str(com))
           bot.send_message(chat_id=key.chat_id, text=str(com))
           Jorder = json.loads(json.dumps(OrderSell))
@@ -152,13 +175,12 @@ def Strategy_BB():
 
       if start_operation == "BUY" and float(down_price) > float(price) and float(budget_BTC) > 0:
           qua = float(budget_BTC) / float(price)
-          budget_BTC = 0
           if le==1:
             qua = math.floor(qua)
           else: 
             qua = str(qua)[0:le]
           OrderBuy = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_BUY, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(price))
-          com = "\t Buy Order. Balance: " + str(qua) + "\tPrice: " + str(price) + "\tNext operation: " + str(start_operation) + "\tBalance ALT: " + str(qua)
+          com = "\t Buy Order. Balance: " + str(qua) + "\tPrice: " + str(price)
           print(str(com))
           bot.send_message(chat_id=key.chat_id, text=str(com))
           Jorder = json.loads(json.dumps(OrderBuy))

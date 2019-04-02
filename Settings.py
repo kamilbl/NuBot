@@ -23,10 +23,11 @@ up_profitPPSMA = 1.05
 down_profitPPSMA = 0.95
 
 #Strategy BB Settings
-symbolBB = "MANA"
-budget_BTCBB = 0.04
-tick_intervalBB = "15m"
-start_operationBB = "SELL"   #or "BUY"
+symbolBB = "BQX"
+budget_BTCBB = 0.085
+tick_intervalBB = "1m"
+start_operationBB = "BUY"   #or "BUY"
+use_budget_BTCBB_procent = 0.5
 
 #Strategy RSI Settings
 symbolRSI = "MANA"
@@ -35,9 +36,10 @@ maxRSI=85
 budget_BTCRSI = 0.04
 budget_orderRSI = 0.01
 tick_intervalRSI = "1h"
-start_operationRSI = "SELL"   #or "BUY"
+start_operationRSI = "BUY"   #or "BUY"
 
 #Strategy Scalping Depth
-minDepth = 0.27
+minDepth = 0.25
 budgetBTCSD = 0.019
-start_operationSD = "BUY"   #or "BUY"
+start_operationSD = "SELL"   #or "BUY"
+use_budget_BTCSD_procent = 0.05

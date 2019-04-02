@@ -124,7 +124,7 @@ def Strategy_PingPong():
         else: 
           qua = str(qua)[0:le]
         OrderSell = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_SELL, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(price))
-        com = "\t Sell Order. Balance: " + str(qua) + "\tPrice: " + str(price) + "\tNext operation: " + str(start_operation) + "\tBudget Total: " + str(budget_BTC)
+        com = "\t Sell Order. Balance: " + str(qua) + "\tPrice: " + str(price)
         print(str(com))
         bot.send_message(chat_id=key.chat_id, text=str(com))
         Jorder = json.loads(json.dumps(OrderSell))
@@ -140,7 +140,7 @@ def Strategy_PingPong():
         else: 
           qua = str(qua)[0:le]
         OrderBuy = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_BUY, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(price))
-        com = "\t Buy Order. Balance: " + str(qua) + "\tPrice: " + str(price) + "\tNext operation: " + str(start_operation) + "\tBalance ALT: " + str(qua)
+        com = "\t Buy Order. Balance: " + str(qua) + "\tPrice: " + str(price)
         print(str(com))
         bot.send_message(chat_id=key.chat_id, text=str(com))
         Jorder = json.loads(json.dumps(OrderBuy))
