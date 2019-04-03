@@ -25,7 +25,7 @@ def Strategy_PingPong():
   OrderSide = ''
   symbol = Settings.symbolPP
   base_price = Settings.base_pricePP
-  budget_BTC = Settings.budget_BTCPP
+  #budget_BTC = Settings.budget_BTCPP
   start_operation = Settings.start_operationPP
   up_profit = Settings.up_profitPP
   down_profit = Settings.down_profitPP
@@ -48,11 +48,15 @@ def Strategy_PingPong():
       balanceALTJSON = json.dumps(balanceALT)
       balanceALTRESP = json.loads(balanceALTJSON)
       balanceALTFREE = balanceALTRESP['free']
-
+      budget_ALT = balanceALTFREE
       balanceBTC = client.get_asset_balance(asset='BTC', recvWindow=1000000)
       balanceBTCJSON = json.dumps(balanceBTC)
       balanceBTCRESP = json.loads(balanceBTCJSON)
       balanceBTCFREE = balanceBTCRESP['free']
+      budget_BTC = float(balanceBTCFREE) * float(Settings.use_budget_BTCPP_procent)
+      budget_BTC = round(budget_BTC,8)
+      budget_BTC = decimal.Decimal(budget_BTC)
+      budget_BTC = str(budget_BTC)[0:10]
 
       price = client.get_symbol_ticker(symbol=str(symbol)+"BTC")
       priceJSON = json.dumps(price)
@@ -86,7 +90,10 @@ def Strategy_PingPong():
       table_balance= [
             ['Balance', 'Value'],
             [str(symbol), str(balanceALTFREE)],
-            ['BTC', str(balanceBTCFREE)]
+            ['BTC', str(balanceBTCFREE)],
+						['Budget BTC', str(budget_BTC)],
+					  ['Budget ALT', str(budget_ALT)],
+					  ['Next operation', str(start_operation)]
         ]
 
       table_order= [
@@ -111,20 +118,30 @@ def Strategy_PingPong():
         OrderStatus = Jorder['status']
         if OrderStatus == "FILLED" and OrderSide == "SELL":
           start_operation = "BUY"
-          budget_BTC = Settings.budget_BTCPP
+          budget_BTC = float(balanceBTCFREE) * float(Settings.use_budget_BTCPP_procent)
+          budget_BTC = round(budget_BTC,8)
+          budget_BTC = decimal.Decimal(budget_BTC)
+          budget_BTC = str(budget_BTC)[0:10]
+          budget_ALT = float(balanceALTFREE)
+          OrderID = ""
         elif  OrderStatus == "FILLED" and OrderSide == "BUY":
           start_operation = "SELL"
-          budget_BTC = Settings.budget_BTCPP
+          budget_BTC = float(balanceBTCFREE) * float(Settings.use_budget_BTCPP_procent)
+          budget_BTC = round(budget_BTC,8)
+          budget_BTC = decimal.Decimal(budget_BTC)
+          budget_BTC = str(budget_BTC)[0:10]
+          budget_ALT = float(balanceALTFREE)
+          OrderID = ""
 
-      if start_operation == "SELL" and float(up_price) < float(price) and budget_BTC > 0:
-        qua = float(budget_BTC) / float(price)
-        budget_BTC = 0
+      if start_operation == "SELL" and float(up_price) < float(price) and budget_BTC > 0 and str(OrderID) == "":
+        qua = float(budget_ALT)
+        start_operation == "BUY"
         if le==1:
           qua = math.floor(qua)
         else: 
           qua = str(qua)[0:le]
         OrderSell = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_SELL, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(price))
-        com = "\t Sell Order. Balance: " + str(qua) + "\tPrice: " + str(price)
+        com = "\t Create Sell Order. Balance: " + str(qua) + "\tPrice: " + str(price)
         print(str(com))
         bot.send_message(chat_id=key.chat_id, text=str(com))
         Jorder = json.loads(json.dumps(OrderSell))
@@ -132,15 +149,15 @@ def Strategy_PingPong():
         OrderID = Jorder['orderId']
         OrderSide = Jorder['side']
 
-      if start_operation == "BUY" and float(down_price) > float(price) and float(budget_BTC) > 0:
+      if start_operation == "BUY" and float(down_price) > float(price) and float(budget_BTC) > 0 and str(OrderID) == "":
         qua = float(budget_BTC) / float(price)
-        budget_BTC = 0
+        start_operation == "SELL"
         if le==1:
           qua = math.floor(qua)
         else: 
           qua = str(qua)[0:le]
         OrderBuy = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_BUY, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(price))
-        com = "\t Buy Order. Balance: " + str(qua) + "\tPrice: " + str(price)
+        com = "\t Create Buy Order. Balance: " + str(qua) + "\tPrice: " + str(price)
         print(str(com))
         bot.send_message(chat_id=key.chat_id, text=str(com))
         Jorder = json.loads(json.dumps(OrderBuy))

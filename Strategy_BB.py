@@ -80,10 +80,15 @@ def Strategy_BB():
       balanceALTJSON = json.dumps(balanceALT)
       balanceALTRESP = json.loads(balanceALTJSON)
       balanceALTFREE = balanceALTRESP['free']
+      budget_ALT = balanceALTFREE
       balanceBTC = client.get_asset_balance(asset='BTC', recvWindow=1000000)
       balanceBTCJSON = json.dumps(balanceBTC)
       balanceBTCRESP = json.loads(balanceBTCJSON)
       balanceBTCFREE = balanceBTCRESP['free']
+      budget_BTC = float(balanceBTCFREE) * float(Settings.use_budget_BTCBB_procent)
+      budget_BTC = round(budget_BTC,8)
+      budget_BTC = decimal.Decimal(budget_BTC)
+      budget_BTC = str(budget_BTC)[0:10]
 
       price = client.get_symbol_ticker(symbol=str(symbol)+"BTC")
       priceJSON = json.dumps(price)
@@ -158,8 +163,9 @@ def Strategy_BB():
           budget_ALT = float(balanceALTFREE)
           OrderID = ""
 					
-      if start_operation == "SELL" and float(up_price) < float(price) and float(budget_ALT) > 0:
+      if start_operation == "SELL" and float(up_price) < float(price) and float(budget_ALT) > 0 and str(OrderID) == "":
           qua = float(budget_ALT)
+          start_operation == "BUY"
           if le==1:
             qua = math.floor(qua)
           else: 
@@ -173,8 +179,9 @@ def Strategy_BB():
           OrderID = Jorder['orderId']
           OrderSide = Jorder['side']
 
-      if start_operation == "BUY" and float(down_price) > float(price) and float(budget_BTC) > 0:
+      if start_operation == "BUY" and float(down_price) > float(price) and float(budget_BTC) > 0 and str(OrderID) == "":
           qua = float(budget_BTC) / float(price)
+          start_operation == "SELL"
           if le==1:
             qua = math.floor(qua)
           else: 
