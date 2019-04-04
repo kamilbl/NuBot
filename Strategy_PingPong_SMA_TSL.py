@@ -219,7 +219,7 @@ def Strategy_PingPong_SMA_TSL():
           OrderID = Jorder['orderId']
           OrderSide = Jorder['side'] 
 
-      if start_operation == "SELL" and float(base_priceSMATSL)*float(up_profit)*float(distance_up) < float(price) and float(budget_BTC)>0 and str(OrderID) == "":
+      if start_operation == "SELL" and float(base_priceSMATSL)*float(up_profit)*float(distance_up) < float(price) and float(budget_ALT)>0 and str(OrderID) == "":
           priceLimitUp = float(base_priceSMATSL)*float(up_profit)    #SELL
           priceLimitUp = decimal.Decimal(priceLimitUp)
           priceLimitUp = str(priceLimitUp)[0:10]
