@@ -177,7 +177,11 @@ def Strategy_PingPong_SMA_TSL():
           print("Cancel Order...Please wait...")
           time.sleep(1)
           priceLimitUp = float(priceStopUp)    												 #SELL
+          priceLimitUp = decimal.Decimal(priceLimitUp)
+          priceLimitUp = str(priceLimitUp)[0:10]
           priceStopUp = float(priceLimitUp) * float(distance_up)		   #ACTION START
+          priceStopUp = decimal.Decimal(priceStopUp)
+          priceStopUp = str(priceStopUp)[0:10]
           qua = float(budget_ALT)
           start_operation == "BUY"
           if le==1:
@@ -196,7 +200,11 @@ def Strategy_PingPong_SMA_TSL():
           print("Cancel Order...Please wait...")
           time.sleep(1)
           priceLimitDown = float(priceStopDown)    												#BUY
+          priceLimitDown= decimal.Decimal(priceLimitDown)
+          priceLimitDown = str(priceLimitDown)[0:10]
           priceStopDown = float(priceLimitDown) * float(distance_down)    #ACTION BUY
+          priceStopDown = decimal.Decimal(priceStopDown)
+          priceStopDown = str(priceStopDown)[0:10]
           qua = float(budget_BTC) / float(priceLimitDown)
           start_operation == "SELL"
           if le==1:
@@ -213,7 +221,11 @@ def Strategy_PingPong_SMA_TSL():
 
       if start_operation == "SELL" and float(base_priceSMATSL)*float(up_profit)*float(distance_up) < float(price) and float(budget_BTC)>0 and str(OrderID) == "":
           priceLimitUp = float(base_priceSMATSL)*float(up_profit)    #SELL
+          priceLimitUp = decimal.Decimal(priceLimitUp)
+          priceLimitUp = str(priceLimitUp)[0:10]
           priceStopUp = float(priceLimitUp) * float(distance_up)		 #ACTION START
+          priceStopUp = decimal.Decimal(priceStopUp)
+          priceStopUp = str(priceStopUp)[0:10]
           qua = float(budget_ALT)
           start_operation == "BUY"
           if le==1:
@@ -230,7 +242,11 @@ def Strategy_PingPong_SMA_TSL():
 
       if start_operation == "BUY" and float(base_priceSMATSL)*float(down_profit)*float(distance_down) > float(price) and float(budget_BTC)>0 and str(OrderID) == "":
           priceLimitDown = float(base_priceSMATSL)*float(down_profit)     #BUY
+          priceLimitDown= decimal.Decimal(priceLimitDown)
+          priceLimitDown = str(priceLimitDown)[0:10]
           priceStopDown = float(priceLimitDown) * float(distance_down)    #ACTION BUY
+          priceStopDown = decimal.Decimal(priceStopDown)
+          priceStopDown = str(priceStopDown)[0:10]
           qua = float(budget_BTC) / float(priceLimitDown)
           start_operation == "SELL"
           if le==1:
