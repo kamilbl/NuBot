@@ -21,9 +21,20 @@ symbolPPSMA = "BQX"
 budget_BTCPPSMA = 0.04
 tick_intervalPPSMA="1m"
 start_operationPPSMA = "SELL"   #or "BUY"
-up_profitPPSMA = 1.01
-down_profitPPSMA = 0.993
+up_profitPPSMA = 1.002
+down_profitPPSMA = 0.998
 use_budget_BTCPPSMA_procent = 1
+
+#Strategy PingPong SMA TSL Settings
+symbolPPSMATSL = "BQX"
+budget_BTCPPSMATSL = 0.04
+tick_intervalPPSMATSL ="1m"
+start_operationPPSMATSL = "SELL"   #or "BUY"
+up_profitPPSMATSL = 1.01
+down_profitPPSMATSL = 0.99
+use_budget_BTCPPSMATSL_procent = 1
+distancePPSMATSLup = 1.002
+distancePPSMATSLdown = 0.998
 
 #Strategy BB Settings
 symbolBB = "BQX"
