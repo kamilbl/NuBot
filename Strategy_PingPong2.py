@@ -23,6 +23,8 @@ def Strategy_PingPong2():
   OrderStatus = ''
   OrderID = ''
   OrderSide = ''
+  comSell = ''
+  comBuy = ''
   symbol = Settings.symbolPP2
   base_price = Settings.base_pricePP2
   #budget_BTC = Settings.budget_BTCPP2
@@ -129,6 +131,8 @@ def Strategy_PingPong2():
         OrderStatus = Jorder['status']
         if OrderStatus == "FILLED" and OrderSide == "SELL":
           start_operation = "BUY"
+          bot.send_message(chat_id=key.chat_id, text=str(comSell))  #<--send msg Telegram
+          time.sleep(5)
           budget_BTC = float(balanceBTCFREE) * float(Settings.use_budget_BTCPP2_procent)
           budget_BTC = round(budget_BTC,8)
           budget_BTC = decimal.Decimal(budget_BTC)
@@ -137,6 +141,8 @@ def Strategy_PingPong2():
           OrderID = ""
         elif  OrderStatus == "FILLED" and OrderSide == "BUY":
           start_operation = "SELL"
+          bot.send_message(chat_id=key.chat_id, text=str(comBuy))  #<--send msg Telegram
+          time.sleep(5)
           budget_BTC = float(balanceBTCFREE) * float(Settings.use_budget_BTCPP2_procent)
           budget_BTC = round(budget_BTC,8)
           budget_BTC = decimal.Decimal(budget_BTC)
@@ -152,10 +158,9 @@ def Strategy_PingPong2():
         else: 
           qua = str(qua)[0:le]
         print(qua)
-        OrderSell = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_SELL, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(up_price))
-        com = "\tCreate Sell Order. Balance: " + str(qua) + "\tPrice: " + str(up_price)
-        print(str(com))
-        bot.send_message(chat_id=key.chat_id, text=str(com))
+        OrderSell = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_SELL, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(up_price), recvWindow=1000000)
+        comSell = "\tCreate Sell Order. Balance: " + str(qua) + "\tPrice: " + str(up_price)
+        print(str(comSell))
         Jorder = json.loads(json.dumps(OrderSell))
         OrderStatus = Jorder['status']
         OrderID = Jorder['orderId']
@@ -168,10 +173,9 @@ def Strategy_PingPong2():
           qua = math.floor(qua)
         else: 
           qua = str(qua)[0:le]
-        OrderBuy = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_BUY, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(down_price))
-        com = "\tCreate Buy Order. Balance: " + str(qua) + "\tPrice: " + str(down_price)
-        print(str(com))
-        bot.send_message(chat_id=key.chat_id, text=str(com))
+        OrderBuy = client.create_order(symbol=str(symbol+"BTC"), side=client.SIDE_BUY, type=client.ORDER_TYPE_LIMIT, timeInForce=client.TIME_IN_FORCE_GTC, quantity=str(qua), price=str(down_price), recvWindow=1000000)
+        comBuy = "\tCreate Buy Order. Balance: " + str(qua) + "\tPrice: " + str(down_price)
+        print(str(comBuy))
         Jorder = json.loads(json.dumps(OrderBuy))
         OrderStatus = Jorder['status']
         OrderID = Jorder['orderId']
