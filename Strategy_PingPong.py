@@ -139,7 +139,7 @@ def Strategy_PingPong():
           budget_ALT = float(balanceALTFREE)
           OrderID = ""
 
-      if start_operation == "SELL" and float(up_price) < float(price) and budget_BTC > 0 and str(OrderID) == "":
+      if start_operation == "SELL" and float(up_price) < float(price) and float(budget_ALT) > 0 and str(OrderID) == "":
         qua = float(budget_ALT)
         start_operation == "BUY"
         if le==1:
