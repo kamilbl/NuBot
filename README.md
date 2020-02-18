@@ -1,3 +1,5 @@
+NEW VERSION NUBOT 2.0 [LINK](https://github.com/kamilbl/NuBot-2.0)
+
 # NuBot
 
 Nubot is simply bot on Binance market. I'm testing now. I'm begginer in Python.
